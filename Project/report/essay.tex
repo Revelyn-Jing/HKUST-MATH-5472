@@ -13,6 +13,15 @@
 \usepackage{float}   % 放在导言区
 \usepackage{array}
 
+\usepackage{graphicx}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{float}  % 需要这个包
+\usepackage{amsmath}
+
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
 
 \title{What If Without the Conformal Prediction?}
 
@@ -38,9 +47,25 @@
 
 \section{Introduction}
 
-With the growing use of machine learning in risk-sensitive domains such as medical diagnosis and financial risk management, aggregate metrics such as average accuracy are no longer sufficient. Conventional learning algorithms such as neural networks, support vector machines, and decision trees typically provide only point predictions and do not offer calibrated measures of uncertainty. In practice, decision-makers require not only accurate predictions but also a principled assessment of their reliability. Conformal prediction meets this requirement by providing instance-wise, distribution-free validity guarantees that quantify the uncertainty associated with each prediction.
+With the growing use of machine learning in risk-sensitive domains such as medical diagnosis and financial risk management, aggregate metrics such as average accuracy are no longer sufficient. Conventional learning algorithms such as neural networks, support vector machines, and decision trees typically provide only point predictions and do not offer calibrated measures of uncertainty. In practice, decision-makers require not only accurate predictions but also a principled assessment of their reliability.
 
-If conformal prediction did not exist, what we would lose is not merely an algorithm but a critical meta-methodology: a systematic framework that decouples uncertainty quantification from model design through the construction of nonconformity scores. The impact would extend beyond the disappearance of a single technique, representing a fundamental shift in the paradigm of algorithm design.
+Conformal prediction addresses this need by constructing, for each new input $X_{n+1}$, a prediction set
+\[
+  C_\alpha(X_{n+1}) \subseteq \mathcal{Y},
+\]
+where $\mathcal{Y}$ denotes the label space and $\alpha \in (0,1)$ is the target miscoverage level. The goal is to ensure the finite-sample, distribution-free validity guarantee
+\[
+  \mathbb{P}\!\left( Y_{n+1} \in C_\alpha(X_{n+1}) \right) \ge 1 - \alpha ,
+\]
+for the unknown true label $Y_{n+1}$, assuming only that the data $(X_i,Y_i)_{i=1}^{n+1}$ are exchangeable.
+
+To achieve this, conformal prediction defines a \emph{nonconformity score}
+\[
+  V_i = V(X_i, Y_i), \qquad i = 1,\dots,n,
+\]
+which measures how atypical an example $(X_i,Y_i)$ is relative to the others. A candidate label $y$ for the new input $X_{n+1}$ is evaluated via its test-time score $V(X_{n+1}, y)$ and included in the prediction set whenever it does not exceed the appropriate empirical quantile of the calibration scores.
+
+If conformal prediction did not exist, what we would lose is not merely an algorithm but a critical meta-methodology: a systematic framework that decouples uncertainty quantification from model design through the construction of nonconformity scores. The impact would extend beyond the disappearance of a single technique, altering the fundamental paradigm for developing uncertainty-aware predictive systems.
 
 
 % This paper examines this question from multiple perspectives, including the historical development of conformal prediction, its core insights, and its distinctive role in modern machine learning. Sections 2 and 3 provide an in-depth overview of its evolution and underlying principles, clarifying its unique value and highlighting the essential differences from alternative approaches to uncertainty quantification. Section 4 presents a comparative analysis between conformal prediction and other uncertainty quantification methods, demonstrating its advantages and irreplaceability. Section 5 discusses its practical significance in real-world applications and explores the potential consequences for research and practice in a hypothetical scenario where conformal prediction does not exist, including the research directions that would be absent in its absence.
@@ -78,55 +103,162 @@ Recent developments in conformal prediction have focused on three main areas: im
 %先注释掉，如果后面的内容感觉不太够的话这里再凑一点工作量
 
 \subsection{Conformal Prediction Framework}
-Vovk’s work introduces full conformal prediction or transductive conformal prediction \cite{vovk2005conformal}. The central idea is that, given a training set and a new test instance, each possible label for the test instance is tentatively paired with the training data to compute a nonconformity score, and the label is included in the prediction set based on its rank among these scores. Because this procedure becomes computationally expensive as the dataset grows, subsequent research has proposed more efficient variants, most notably split conformal prediction\cite{SplitConformalPrediction}, which is now widely used. This subsection will focus on split conformal prediction and its technical details, and will illustrate the overall conformal framework by comparing the associated forms of variance.
+Vovk’s work introduces full conformal prediction or transductive conformal prediction \cite{vovk2005conformal}. The central idea is that, given a training set and a new test instance, each possible label for the test instance is tentatively paired with the training data to compute a nonconformity score, and the label is included in the prediction set based on its rank among these scores. Because this procedure becomes computationally expensive as the dataset grows, subsequent research has proposed more efficient variants, most notably split conformal prediction\cite{SplitConformalPrediction}, which is now widely used. This subsection will focus on split conformal prediction and its technical details, and illustrate the overall conformal framework.
+
+\subsubsection{Split Conformal Prediction}
+
+Recall the targert of conformal prediction : given i.i.d.\ data $(X_i,Y_i)_{i=1}^n$ with $X_i\in\mathcal{X}$, $Y_i\in\mathcal{Y}$ and a target
+miscoverage level $\alpha\in(0,1)$, conformal prediction attempts to construct, for
+each new input $X_{n+1}$, a prediction set
+\[
+  C_{\alpha}(X_{n+1}) \subseteq \mathcal{Y}
+\]
+such that the coverage rate guarantee
+\[
+  \mathbb{P}\!\left( Y_{n+1} \in C_{\alpha}(X_{n+1}) \right) \ge 1-\alpha
+\]
+holds for any underlying distribution, assuming only exchangeability (i.i.d.) of
+$(X_i,Y_i)_{i=1}^{n+1}$.
 
 
-%这里抄一下2018的论文\cite{SplitConformalPrediction}
+Split conformal prediction achieves this by partitioning the data into two parts: a
+training subset for fitting an arbitrary base model $\hat f$, and a calibration subset for
+quantifying the model’s residual uncertainty.  
+The calibration samples provide an empirical distribution of nonconformity scores, whose
+appropriate quantile is then used to expand the model’s raw prediction into a prediction
+set with controlled miscoverage.  
+In this way, split CP (Conformal Prediction) converts any point predictor into a distribution-free, finite-sample
+valid prediction region.
 
-% A simple introduction to the conformal prediction algorithm
 
-% 1. Core insight: a revolutionary abstraction of the “score” definition
-%    Your observation that “the definition of the score removes the dependence on the model’s internal structure” captures the essence of conformal prediction.
 
+\begin{algorithm}[H]
+\caption{Split Conformal Prediction }
+\label{alg:split-conformal}
+\begin{algorithmic}[1]
+\REQUIRE Dataset $\{(X_i, Y_i)\}_{i=1}^n$; base learner $\mathcal{A}$; nonconformity function $V_f$; miscoverage level $\alpha \in (0,1)$
+\ENSURE Mapping $x \mapsto C_\alpha(x)$
+
+\STATE Randomly split the index set $\{1,\dots,n\}$ into disjoint subsets:
+       training indices $I_{\mathrm{train}}$ and calibration indices $I_{\mathrm{cal}}$
+
+\STATE Fit the prediction model on the training set:
+       \[
+         f \leftarrow \mathcal{A}\bigl(\{(X_i, Y_i) : i \in I_{\mathrm{train}}\}\bigr)
+       \]
+
+\STATE For each $i \in I_{\mathrm{cal}}$, compute the nonconformity score:
+       \[
+         V_i \leftarrow V_f(X_i, Y_i), \qquad i \in I_{\mathrm{cal}}
+       \]
+
+\STATE Let $m \leftarrow |I_{\mathrm{cal}}|$ and
+       $k \leftarrow \bigl\lceil (1-\alpha)(m+1)\bigr\rceil$.
+       Define $\widehat{Q}_{1-\alpha}$ as the $k$-th smallest value in
+       $\{V_i : i \in I_{\mathrm{cal}}\}$
+
+\STATE For any new input $x \in \mathcal{X}$, define the prediction set:
+       \[
+         C_\alpha(x)
+           \leftarrow \bigl\{y \in \mathcal{Y} : V_f(x,y) \le \widehat{Q}_{1-\alpha}\bigr\}
+       \]
+
+\end{algorithmic}
+\end{algorithm}
+Moreover, the split conformal prediction algorithm comes with a rigorous theoretical coverage guarantee.
+
+\begin{theorem}[Conformal coverage guarantee for Split CP\cite{angelopoulos2021gentle}]
+Suppose the observations $(X_i,Y_i)_{i=1,\ldots,n}$ and the test pair
+$(X_{\mathrm{test}},Y_{\mathrm{test}})$ are i.i.d.\ and let
+$\widehat{Q}_{1-\alpha}$ and $C_\alpha(X_{\mathrm{test}})$ be defined as in
+Algorithm~\ref{alg:split-conformal}. Then the following coverage guarantee holds:
+\[
+  \mathbb{P}\!\left( Y_{\mathrm{test}} \in C_\alpha(X_{\mathrm{test}}) \right)
+  \;\ge\; 1-\alpha.
+\]
+\end{theorem}
+
+Notice that this theorem shows that the coverage guarantee of split CP is not asymptotic but holds non-asymptotically for any sample size.
+
+\subsubsection{Variancs and Their Shared Framework}
+In recent years, conformal prediction has attracted considerable attention and has advanced rapidly. In the following, we provide several representative variants and explain how the components that vary, as well as those that remain invariant, help reveal the essential structure of the conformal prediction framework.
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{
+    >{\raggedright\arraybackslash}p{2.5cm}
+    >{\raggedright\arraybackslash}p{3.5cm}
+    >{\raggedright\arraybackslash}p{7cm}
+}
+\toprule
+\textbf{Method} & \textbf{Objective} & \textbf{Core Idea} \\
+\midrule
+
+CV+ / Jackknife+ \cite{jackknifePlus}
+& Improve statistical efficiency and avoid overly wide intervals from data splitting 
+& Use cross-validation or leave-one-out residuals to obtain more stable error estimates and produce tighter prediction sets. \\
+
+\addlinespace
+
+Weighted CP \cite{weightedConformal}
+& Achieve valid coverage under covariate shift or population heterogeneity 
+& Rank scores using importance weights that reflect differences between the target and calibration distributions. \\
+
+\addlinespace
+
+Distributional CP \cite{distributionalConformal}
+& Handle complex, multimodal, or asymmetric conditional distributions 
+& Construct scores based on estimated CDF values (e.g., $|F(x,y)-0.5|$) to form high-density prediction regions. \\
+
+
+\addlinespace
+
+CP for hierarchical structure data \cite{hierarchicalConformal}
+& Handle data with group-level heterogeneity and hierarchical sampling structures
+& Replace standard exchangeability with hierarchical exchangeability and construct prediction sets using pooled CDF, double conformal, or subsampling-based aggregation across groups. \\
+
+\addlinespace
+
+Adaptive Prediction Sets\cite{romano2020classification,angelopoulos2020uncertainty}
+& Improve fairness of coverage across classes and sample difficulty 
+& Use cumulative softmax probability to define an ordered score and adjust prediction set size according to sample difficulty. \\
+
+\addlinespace
+
+Conformalized Quantile Regression\cite{CQR}
+& Construct more adaptive regression intervals 
+& Measure deviation from upper and lower quantiles and calibrate these to form intervals adaptive to conditional distribution shape. \\
+
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+From the table, we can see that although recent developments in conformal prediction have produced many variants, their innovations mainly focus on how the score is designed, what is calibrated, or how the exchangeability assumption is extended.
+These represent the variant component of the CP framework. Different methods modify the source of the scores, the geometric form of the scores, or model the underlying data structure and distribution shift to better adapt to new tasks, data structures, or distributional settings. These changes improve the applicability of CP in complex, high-dimensional, heteroscedastic, multimodal, and non-i.i.d. scenarios, allowing the framework to remain flexible across different use cases.
+
+
+In contrast, all methods preserve the invariant component of conformal prediction. No matter how the method varies, the validity mechanism follows the same basic design: construct a score that measures the discrepancy between the prediction and the ground truth, compute its empirical distribution on the calibration set, and rely on exchangeability to obtain validity guarantees.
 
 \section{Key Insights and Benefit of Conformal Prediction}
-
-(1) The key step: the nonconformity score
-• Traditional view: model outputs (such as softmax probabilities or SVM decision values) are used directly as proxies for confidence. These are tightly coupled to the model’s internal structure. A neural network probability and a random forest probability do not have the same meaning and cannot be compared directly.
-• CP’s abstraction: it introduces a nonconformity score A(x, y). The only requirement is that for a data point (x, y), a higher score means the pair looks more “strange” or “nonconforming” relative to the model or data distribution.
-• Structure removed: this score A can be anything—prediction error |y  f(x)|, negative log-likelihood, distance to a decision boundary, or variance across an ensemble. CP does not care how A is constructed; it only uses the ranking of these scores. It compresses any model into a scalar score generator.
-
-(2) Significance: this abstraction achieves model-agnosticism. Whether using a ResNet, a transformer, or logistic regression, as long as a “strangeness score” can be computed for each candidate label, CP can provide coverage guarantees. This decouples uncertainty quantification from model design.
-
-2. Theoretical foundation: trading “exchangeability” for mathematical guarantees
-   Your point that CP “uses exchangeability to obtain mathematical guarantees” touches its statistical core.
-
-(1) Mild assumption: CP does not require the data to be i.i.d.; it only needs exchangeability—the joint distribution remains unchanged under index permutations. This is weaker than i.i.d. and closer to practical settings (e.g., time series can often be made approximately exchangeable after proper preprocessing).
-(2) Strong guarantee: under this mild assumption, CP yields its key validity guarantee: for any new test point, the probability that the true label falls outside the prediction set is at most , the preset error rate. This is a finite-sample, distribution-free guarantee independent of model complexity or data distribution.
-(3) Insight: CP demonstrates a path where strong, practical statistical guarantees arise not from assuming a specific data-generating distribution, but from exploiting symmetry properties of data order. This is foundational for statistical inference in modern high-dimensional, complex data settings.
-
+% 从section3.2.2中我们可以知道conformal prediction有很多的变种，但是不管是哪一种变种，他们都遵循着conformal prediction的基本框架。
 
 
 
 Therefore, the true insight of conformal prediction is that it offers a meta-methodology:
 
 1. Decoupling: It separates model performance (implicitly reflected through the score function A) from output guarantees (derived from rank-based calibration and exchangeability).
+
 2. Guarantee-first design: It reverses the traditional approach. Instead of trying to make model outputs “look like” probabilities and then hoping for guarantees, CP first builds a framework that inherently provides guarantees (via calibration and set-valued prediction), and then embeds any model inside it.
-3. Infrastructure-friendly: It provides a simple, unified, and theoretically sound reliability layer for the diverse and ever-changing machine-learning ecosystem. This is not only an algorithmic innovation but also an elevation in system-level engineering thinking.
-
-%最优性 It turns out that any valid invariant confidence predictor is a conformal predictor or can be improved to become a conformal predictor (Vovk et al., 2005, , Theorem 2.6).
-
-% \section{Introduction about Conformal Prediction}
-% What if the world had no conformal prediction? This paper attempts to answer that question.
-% But before addressing this question, we must first introduce the unique nature of the conformal prediction topic itself.
-% Compared to algorithms like gradient boosting that have been around for some time, conformal prediction—proposed in the 2000s and gaining prominence only recently—is a very young research direction. Therefore, beyond merely discussing what the present would be like without conformal prediction, we should also reflect on the algorithm's future impact by examining the insights it offers. If this research direction had never been proposed, how might related theories and applications evolve in the future?
 
 
 % ovk 在1980–1990年代深入研究了算法随机性的数学基础，提出了“超鞅”（supermartingales）的概念来形式化检测序列中的非随机性或非交换性。他证明，在一个公平的博弈中，如果数据序列存在某种模式或偏差，一个精明的赌徒可以通过构造特定的超鞅策略使其资本无界增长。这一思想后来被直接应用于共形预测中：当一个新的测试样本到来时，通过将其与训练集合并并计算每个可能的标签所对应的“非共形测度”（nonconformity measure），可以构造出一系列p值。这些p值本质上反映了该样本在当前假设下有多“异常”或“不共形”，其计算过程正是基于数据排列的对称性，从而天然地依赖于交换性假设而非i.i.d.
 
 \section{Alternative Methods}
 
-A wide range of uncertainty quantification techniques have been developed across statistics and machine learning. These approaches differ in their underlying assumptions, the form of guarantees they provide, and their suitability for various application settings. Table~\ref{tab:cp-competitors} summarizes the main methodological families commonly used as competitors to conformal prediction.
+A wide range of uncertainty quantification techniques have been developed across statistics and machine learning. These approaches differ in their underlying assumptions, the form of guarantees they provide, and their suitability for various application settings. Table summarizes the main methodological families commonly used as competitors to conformal prediction.
 
 \begin{table}[H]
 \centering
@@ -169,15 +301,117 @@ A wide range of uncertainty quantification techniques have been developed across
 
 \bottomrule
 \end{tabular}
-\caption{Major competitor methods to conformal prediction}
-\label{tab:cp-competitors}
 \end{table}
 
 None of these approaches simultaneously achieve the combination of distribution-free operation, finite-sample validity, and instance-wise guarantees that conformal prediction provides. Nevertheless, each method family has its own advantages and suitable application contexts. The remainder of this section outlines the core ideas behind several representative competitors and contrasts them with conformal prediction to highlight its distinct value.
 
-\subsection{Bayesian framework}
-%先验不行的话就很糟糕
+\subsection{Bayesian Framework}
+Bayesian methods can yield efficient and well-calibrated intervals when the likelihood and prior are correctly specified, and they naturally account for parameter uncertainty through the posterior. However, their guarantees depends on the prior.Under misspecification, Bayesian credible intervals often suffer from severe undercoverage despite appearing narrow, and the Bayesian framework provides no  coverage guarantee.
 
+In contrast, conformal prediction is agnostic to the data-generating mechanism and avoids reliance on priors or likelihood models. Its intervals remain finite-sample valid under the sole assumption of exchangeability, maintaining stable coverage even when the predictive model is misspecified. The trade-off is efficiency: conformal intervals are typically wider, particularly at high confidence levels or with limited calibration data, because they must guard against worst-case residual behavior.
+
+In this section, the comparisons are organized across three settings. 
+First, full Bayesian and empirical Bayesian approaches are examined in the context of ridge regression, contrasting full posterior integration with the empirical Bayes approximation that estimates prior hyperparameters from data. 
+Second, the analysis is extended to a Bayesian neural network on the UCI ENB2012 Energy dataset\cite{energy_efficiency_242}, using an MLP backbone to isolate the effect of the Bayesian treatment itself. 
+Together, these experiments provide a unified view of how Bayesian uncertainty behaves in both linear and nonlinear models, and how it compares with distribution-free conformal prediction.
+
+
+\subsubsection{Full Bayesian and Empirical Bayesian}
+This experiment based on the general setup of \cite{BayesVsTypicalness} and compare the interval performance of Full Bayesian Ridge Regression and Split Conformal Prediction using generated data. The input features \(x \in [-10,10]^5\) are independently sampled from a uniform distribution, and the weight vector \(w\) is drawn from a standard normal prior \( \mathcal{N}(0, I) \). Labels are generated according to
+\[
+y = x^\top w + \varepsilon, \qquad \varepsilon \sim \mathcal{N}(0,1).
+\]
+A single training–test split (100 training points and 100 test points) is fixed using a predetermined random seed, and we evaluate 20 significance levels \(\alpha \in [0.01,0.99]\) on this fixed dataset. Each \((a,\alpha)\) configuration is repeated 10 times: Bayesian Ridge uses the same dataset in all repetitions, whereas Split Conformal varies only the internal random seed that determines the calibration split.
+
+Bayesian Ridge Regression applies
+\[
+\Sigma = (X^\top X + aI)^{-1}, \qquad \mu = \Sigma X^\top y,
+\]
+and constructs Gaussian predictive intervals via
+$$
+y \mid \mathcal{D} \sim \mathcal{N}\!\left(x\mu,\; 1 + x\Sigma x\right),
+$$
+evaluating the effect of prior misspecification with \(a \in \{1, 1000, 10000\}\).
+
+Split Conformal Prediction uses the same Ridge predictor but randomly partitions the training data into \(80\%\) proper training and \(20\%\) calibration subsets, forming distribution-free intervals from the finite-sample quantile of the calibration residuals.
+
+Across all confidence $(1-\alpha)$, this experimentevaluate both the empirical coverage and the mean interval width, thereby comparing the sensitivity of Bayesian intervals to prior misspecification against the distribution-free robustness of Split Conformal Prediction.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figure/FullBayes_vs_SplitCP.png}
+    \caption{Full Bayesian RR and Split Conformal prediction for RR.}
+    \label{fig:fullbayes_vs_splitcp}
+\end{figure}
+
+In addition, since Full Bayesian methods are no longer the preferred choice after the introduction of Empirical Bayes, the experiment also incorporates an Empirical Bayesian variant to provide a more modern and practically relevant comparison.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figure/EmpiricalBayes_vs_SplitCP.png}
+    \caption{Empirical Bayesian RR and Split Conformal prediction for RR.}
+    \label{fig:empbayes_vs_splitcp}
+\end{figure}
+
+
+
+As shown in figure ~\ref{fig:fullbayes_vs_splitcp}, when the prior is correctly specified (\(a = 1\)), Bayesian Ridge Regression produces valid prediction intervals. As \(a\) increases and the prior becomes misspecified, the Bayesian intervals deteriorate sharply: their coverage collapses while the interval width remains almost unchanged. In contrast, the width of the Split Conformal intervals increases with the confidence level and maintains valid coverage across all settings.
+
+A similar pattern appears in the empirical Bayesian variant in ~\ref{fig:empbayes_vs_splitcp}. With the correct prior, it achieves good coverage with intervals narrower than those of the full Bayesian method. Under severe prior misspecification, the empirical Bayesian intervals widen and display some degree of robustness, yet their coverage still remains below that of Split Conformal Prediction, can not reach the desired level.
+
+
+
+%介绍数据集
+\subsubsection{Bayesian Neural Network}
+Recent years have introduced improved Bayesian neural network (BNN) methods \cite{BNN}. 
+Their core idea is simple: instead of learning a single set of network weights, a BNN places a prior over the weights and learns a posterior distribution. 
+Sampling from this posterior gives multiple plausible models, allowing the prediction uncertainty to reflect both model uncertainty (epistemic) and data noise (aleatoric). 
+
+This experiment applies such a BNN to the UCI ENB2012 Energy dataset\cite{energy_efficiency_242} , using the same MLP backbone as in the CP baseline. 
+
+The UCI ENB2012 Energy dataset contains 768 simulated building designs, each described by eight physical and geometric features such as wall area, roof area, glazing ratio, and overall height. These features are used to predict two real-valued heating and cooling load indicators. The dataset is low-dimensional, noise-modest, and exhibits smooth nonlinear structure, making it a standard benchmark for regression and uncertainty quantification. 
+
+In this experiment, both the BNN and Split CP use the same base learner: an MLP with input dimension
+$8$, one hidden layer of width $64$ with ReLU. 
+The BNN adopts a mean–field variational formulation
+(Bayes-by-Backprop style)\cite{blundell2015weight}, placing independent Gaussian priors on all weights and learning Gaussian
+posterior parameters via an ELBO objective with reparameterized sampling.
+
+
+and a $1$--dimensional output. The BNN employs Gaussian priors $w,b\sim\mathcal N(0,1)$ and is
+trained for $100$ epochs using Adam ($10^{-3}$ learning rate, batch size $64$). Posterior prediction
+is approximated with $T=200$ Monte Carlo samples, yielding predictive mean $\mu$ and standard
+deviation $\sigma$ (after inverting the response scaling). The
+$(1-\alpha)$ interval is
+$
+\mu \pm z_{1-\alpha/2}\,\sigma.
+$
+
+For Split CP, the same MLP is trained on $70\%$ of the data, with the remaining $30\%$ used for
+calibration. Absolute residuals are sorted, and the conformal radius for level $\alpha$ is taken at
+index $\lceil (n_{\text{cal}}+1)(1-\alpha)\rceil$. CP intervals are obtained by adding/subtracting
+this radius to the MLP predictions on the raw scale. 
+
+
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figure/BNN_vs_SplitCP.png}
+    \caption{BNN and Split CP on UCI ENB2012.}
+    \label{fig:bnn_vs_splitcp}
+\end{figure}
+
+Figure~\ref{fig:bnn_vs_splitcp} shows that, under the same MLP base model, BNN intervals deviate sharply from the ideal diagonal: the fraction of points outside the intervals is far above nominal, reflecting severely underestimated posterior variance and strong overconfidence. The intervals remain narrow across confidence levels, consistent with the observed undercoverage.
+
+By contrast, Split Conformal closely follows the ideal line, with interval width increasing
+predictably with confidence. Although wider, these intervals achieve near-nominal coverage.
+
+Overall, BNN fails to provide valid frequentist coverage, while Split Conformal delivers stable, distribution-free, finite-sample guarantees.
 
 
 
@@ -196,206 +430,208 @@ None of these approaches simultaneously achieve the combination of distribution-
 % 哇所以boostrap是在训练阶段要训练B次，预测阶段要调用B个模型，B 通常是 200–2000。
 % Conformal prediction 只需要训练一次模型，预测阶段只需要计算 n+1 次非拟合度分数排序就可以了，计算量小很多。
 
-## 总体设定（所有实验共用）
 
-* 回归模型：
-  (X \sim \text{Unif}[-1,1])，若干不同的真模型 (f^*) 与噪声 (\varepsilon)。
-* 目标：预测 (Y)，构造 95% 区间，比较：
 
-  * Conformal（split CP，NCM = |residual|）
-  * Bootstrap（residual bootstrap + 线性/NN 重拟合）
-* 评价：
+% ## 总体设定（所有实验共用）
 
-  * overall coverage：(\Pr{Y\in \hat C(X)})
-  * 平均区间长度
-  * 条件 coverage：在 x-bins 上估计 (\Pr{Y\in \hat C(X)\mid X\in \text{bin}})
-  * 运行时间（可选）
+% * 回归模型：
+%   (X \sim \text{Unif}[-1,1])，若干不同的真模型 (f^*) 与噪声 (\varepsilon)。
+% * 目标：预测 (Y)，构造 95% 区间，比较：
 
-下面按 claim 设计 4 个实验。
+%   * Conformal（split CP，NCM = |residual|）
+%   * Bootstrap（residual bootstrap + 线性/NN 重拟合）
+% * 评价：
 
----
+%   * overall coverage：(\Pr{Y\in \hat C(X)})
+%   * 平均区间长度
+%   * 条件 coverage：在 x-bins 上估计 (\Pr{Y\in \hat C(X)\mid X\in \text{bin}})
+%   * 运行时间（可选）
 
-## 实验 1：模型正确 vs 错误 → “Bootstrap 在 misspecification 下失效，CP 始终 valid”
+% 下面按 claim 设计 4 个实验。
 
-### 1A 模型正确（线性 + 高斯噪声）
+% ---
 
-* 真模型：
-  (Y = 2X + \varepsilon,\ \varepsilon \sim N(0,1))
-* 数据：
+% ## 实验 1：模型正确 vs 错误 → “Bootstrap 在 misspecification 下失效，CP 始终 valid”
 
-  * train: n_train = 200
-  * cal: n_cal = 200（给 CP 用）
-  * test: n_test = 5000
-* 基模型：线性回归
+% ### 1A 模型正确（线性 + 高斯噪声）
 
-方法：
+% * 真模型：
+%   (Y = 2X + \varepsilon,\ \varepsilon \sim N(0,1))
+% * 数据：
 
-* CP：
+%   * train: n_train = 200
+%   * cal: n_cal = 200（给 CP 用）
+%   * test: n_test = 5000
+% * 基模型：线性回归
 
-  * 在 train 上拟合线性模型，
-  * 在 cal 上算 residuals (|Y_i - \hat f(X_i)|)，取 (1−α)(n_cal+1)-th quantile = q_hat
-  * 区间：([\hat f(x) - q_{\text{hat}}, \hat f(x) + q_{\text{hat}}])
-* Bootstrap：
+% 方法：
 
-  * 在 train 上拟合线性，得 residuals (\hat\varepsilon_i)
-  * 重抽 B=500 组 residuals，在每次 bootstrap 上重构 (Y^*)，重拟合线性，得到 (\hat f_b(x)) 或 residual 分布
-  * 取 bootstrap residual/预测分布的 2.5%–97.5% 形成区间
+% * CP：
 
-预期结果：
+%   * 在 train 上拟合线性模型，
+%   * 在 cal 上算 residuals (|Y_i - \hat f(X_i)|)，取 (1−α)(n_cal+1)-th quantile = q_hat
+%   * 区间：([\hat f(x) - q_{\text{hat}}, \hat f(x) + q_{\text{hat}}])
+% * Bootstrap：
 
-* 两者的 coverage 都接近 0.95
-* Bootstrap 区间略短一点（高效），CP 稍长一点
+%   * 在 train 上拟合线性，得 residuals (\hat\varepsilon_i)
+%   * 重抽 B=500 组 residuals，在每次 bootstrap 上重构 (Y^*)，重拟合线性，得到 (\hat f_b(x)) 或 residual 分布
+%   * 取 bootstrap residual/预测分布的 2.5%–97.5% 形成区间
 
-这对应：**“模型正确时，Bayes/parametric/Bootstrap 比 CP 略更 efficient，但 CP 仍 valid”。**
+% 预期结果：
 
----
+% * 两者的 coverage 都接近 0.95
+% * Bootstrap 区间略短一点（高效），CP 稍长一点
 
-### 1B 模型错误（非线性真模型 + 仍用线性）
+% 这对应：**“模型正确时，Bayes/parametric/Bootstrap 比 CP 略更 efficient，但 CP 仍 valid”。**
 
-* 真模型：
-  (Y = 2X + 5X^2 + \varepsilon,\ \varepsilon \sim N(0,1))
+% ---
 
-* 其它设定同上（train/cal/test）
+% ### 1B 模型错误（非线性真模型 + 仍用线性）
 
-* 基模型：仍然用“线性回归”去拟合
+% * 真模型：
+%   (Y = 2X + 5X^2 + \varepsilon,\ \varepsilon \sim N(0,1))
 
-方法同 1A。
+% * 其它设定同上（train/cal/test）
 
-预期现象：
+% * 基模型：仍然用“线性回归”去拟合
 
-* CP：coverage 仍 ≈ 0.95，但 avg length 明显变长
-* Bootstrap：coverage 掉到比如 0.7–0.8，甚至更低，区间依然较短
+% 方法同 1A。
 
-这直接验证：
+% 预期现象：
 
-> “随着假设模型越不对，Bootstrap 失去 validity 但保持短；CP 保持 validity 但区间变宽”。
+% * CP：coverage 仍 ≈ 0.95，但 avg length 明显变长
+% * Bootstrap：coverage 掉到比如 0.7–0.8，甚至更低，区间依然较短
 
----
+% 这直接验证：
 
-## 实验 2：heavy-tail / 异方差噪声 → “Bootstrap 依赖分布条件，CP 只要 exchangeability”
+% > “随着假设模型越不对，Bootstrap 失去 validity 但保持短；CP 保持 validity 但区间变宽”。
 
-设计两种噪声：
+% ---
 
-### 2A heavy-tail
+% ## 实验 2：heavy-tail / 异方差噪声 → “Bootstrap 依赖分布条件，CP 只要 exchangeability”
 
-* 真模型：(Y = 2X + \varepsilon)
-* 噪声：(\varepsilon \sim t_3)（或 t_2）
-* 基模型仍线性回归
+% 设计两种噪声：
 
-### 2B 异方差
+% ### 2A heavy-tail
 
-* 真模型：
-  (Y = 2X + \sigma(X)\varepsilon)
-  (\varepsilon \sim N(0,1))，(\sigma(X) = 0.5 + |X|)（靠近 ±1 方差大）
+% * 真模型：(Y = 2X + \varepsilon)
+% * 噪声：(\varepsilon \sim t_3)（或 t_2）
+% * 基模型仍线性回归
 
-其它设定同前。
+% ### 2B 异方差
 
-方法：
+% * 真模型：
+%   (Y = 2X + \sigma(X)\varepsilon)
+%   (\varepsilon \sim N(0,1))，(\sigma(X) = 0.5 + |X|)（靠近 ±1 方差大）
 
-* CP：像 1A，只是 residual 自然会反映 heavy-tail/heteroskedastic，quantile 变大
-* Bootstrap：仍用 residual bootstrap（很多人默认使用）
+% 其它设定同前。
 
-预期：
+% 方法：
 
-* heavy-tail：
+% * CP：像 1A，只是 residual 自然会反映 heavy-tail/heteroskedastic，quantile 变大
+% * Bootstrap：仍用 residual bootstrap（很多人默认使用）
 
-  * CP coverage ≈ 0.95，区间很宽
-  * Bootstrap coverage 明显 <0.95，尤其 tail 部分 Y 被截断
-* 异方差：
+% 预期：
 
-  * overall coverage 可以看起来还好，但**对大 |X| 的 bin**，Bootstrap coverage 会很低
-  * CP 的 conditional coverage 更平滑一些（虽然仍然只是 marginal 保证）
+% * heavy-tail：
 
-这验证：
+%   * CP coverage ≈ 0.95，区间很宽
+%   * Bootstrap coverage 明显 <0.95，尤其 tail 部分 Y 被截断
+% * 异方差：
 
-> “Bootstrap 对 heavy-tail/异方差敏感，finite-sample 下覆盖差；CP 只要 i.i.d./exchangeable 就有 finite-sample validity。”
+%   * overall coverage 可以看起来还好，但**对大 |X| 的 bin**，Bootstrap coverage 会很低
+%   * CP 的 conditional coverage 更平滑一些（虽然仍然只是 marginal 保证）
 
----
+% 这验证：
 
-## 实验 3：高维 + 黑箱模型 → “CP 可直接套在复杂估计器，Bootstrap 不稳”
+% > “Bootstrap 对 heavy-tail/异方差敏感，finite-sample 下覆盖差；CP 只要 i.i.d./exchangeable 就有 finite-sample validity。”
 
-### 设定
+% ---
 
-* X 维度：p = 20
+% ## 实验 3：高维 + 黑箱模型 → “CP 可直接套在复杂估计器，Bootstrap 不稳”
 
-  * 生成 X ~ N(0, Σ)，Σ_ij = 0.5^{|i-j|}
-* 真模型：
-  (Y = X_1 + X_2 + X_3 + \varepsilon,\ \varepsilon \sim N(0,1))
-* n_train = 300, n_cal = 300, n_test = 5000
-* 基模型：随机森林回归（或浅层 NN）
+% ### 设定
 
-方法：
+% * X 维度：p = 20
 
-* CP：
+%   * 生成 X ~ N(0, Σ)，Σ_ij = 0.5^{|i-j|}
+% * 真模型：
+%   (Y = X_1 + X_2 + X_3 + \varepsilon,\ \varepsilon \sim N(0,1))
+% * n_train = 300, n_cal = 300, n_test = 5000
+% * 基模型：随机森林回归（或浅层 NN）
 
-  * 用 RF/NN 在 train 上拟合
-  * 在 cal 上 residual → quantile
-* Bootstrap：
+% 方法：
 
-  * 对 train 做 residual bootstrap：每次重抽 residual + 重新训练 RF/NN（昂贵且不稳定）
-  * 用 bootstrap 预测分布取 2.5%–97.5%
+% * CP：
 
-记录：
+%   * 用 RF/NN 在 train 上拟合
+%   * 在 cal 上 residual → quantile
+% * Bootstrap：
 
-* coverage
-* length
-* 时间（train+区间构造）
+%   * 对 train 做 residual bootstrap：每次重抽 residual + 重新训练 RF/NN（昂贵且不稳定）
+%   * 用 bootstrap 预测分布取 2.5%–97.5%
 
-预期：
+% 记录：
 
-* high-dim + RF/NN 下：
+% * coverage
+% * length
+% * 时间（train+区间构造）
 
-  * CP 基本能保持 coverage ~ 0.95（只要 base model 不完全爆炸）
-  * Bootstrap coverage 明显波动更大（模型拟合非常不稳定）
-  * 计算时间：Bootstrap >> CP（尤其有 CV/复杂模型时）
+% 预期：
 
-这支撑：
+% * high-dim + RF/NN 下：
 
-> “在复杂/高维模型下，full parametric/Bootstrap 不再可靠，CP+split 非常实用且高效。”
+%   * CP 基本能保持 coverage ~ 0.95（只要 base model 不完全爆炸）
+%   * Bootstrap coverage 明显波动更大（模型拟合非常不稳定）
+%   * 计算时间：Bootstrap >> CP（尤其有 CV/复杂模型时）
 
----
+% 这支撑：
 
-## 实验 4：instance-wise vs global → “Bootstrap 给的是整体误差，CP 给单点置信信息”
+% > “在复杂/高维模型下，full parametric/Bootstrap 不再可靠，CP+split 非常实用且高效。”
 
-选任意一个前面场景（比如 2B 异方差），在 test 上做：
+% ---
 
-1. 按 X 划分成若干 bin（例如 [-1,-0.5], [-0.5,0], [0,0.5], [0.5,1]）
-2. 对每个 bin 计算：
+% ## 实验 4：instance-wise vs global → “Bootstrap 给的是整体误差，CP 给单点置信信息”
 
-   * CP 的 coverage_bin
-   * Bootstrap 的 coverage_bin
-   * 两者平均区间长度
+% 选任意一个前面场景（比如 2B 异方差），在 test 上做：
 
-同时再看 “instance-wise 尺度”：
+% 1. 按 X 划分成若干 bin（例如 [-1,-0.5], [-0.5,0], [0,0.5], [0.5,1]）
+% 2. 对每个 bin 计算：
 
-* 对每个 test 点：
+%    * CP 的 coverage_bin
+%    * Bootstrap 的 coverage_bin
+%    * 两者平均区间长度
 
-  * CP：p-value 或 interval size (|C(x)|) 作为“不确定性指示器”
-  * Bootstrap：只能给一个“统一 nominal 95% 区间”，没有点级别置信度刻度
+% 同时再看 “instance-wise 尺度”：
 
-你可以画：
+% * 对每个 test 点：
 
-* x-bin vs coverage（两条曲线：CP / Bootstrap）
-* x-bin vs mean interval length
+%   * CP：p-value 或 interval size (|C(x)|) 作为“不确定性指示器”
+%   * Bootstrap：只能给一个“统一 nominal 95% 区间”，没有点级别置信度刻度
 
-预期：
+% 你可以画：
 
-* Bootstrap 在大噪声区域（大 |X|）coverage 崩掉
-* CP 的 coverage 变化小得多
-* CP 自然给每个样本一个 interval size / p-value，展示 instance-wise 信心的“分辨率”；Bootstrap 的“95% 区间”在全局是统一标称，没有 per-instance 区别。
+% * x-bin vs coverage（两条曲线：CP / Bootstrap）
+% * x-bin vs mean interval length
 
----
+% 预期：
 
-## 你论文里可以怎么用
+% * Bootstrap 在大噪声区域（大 |X|）coverage 崩掉
+% * CP 的 coverage 变化小得多
+% * CP 自然给每个样本一个 interval size / p-value，展示 instance-wise 信心的“分辨率”；Bootstrap 的“95% 区间”在全局是统一标称，没有 per-instance 区别。
 
-* Section “Experiments” 结构：
+% ---
 
-  1. Linear-Gaussian（1A）：“sanity check: CP vs Bootstrap under correct model”
-  2. Nonlinear / heavy-tail / heteroskedastic（1B + 2）：“Bootstrap loses validity under misspecification; CP keeps finite-sample coverage, trades length”
-  3. High-dimensional RF/NN（3）：“CP remains valid and efficient on complex black-boxes, Bootstrap unstable and expensive”
-  4. Instance-wise analysis（4）：“Global vs instance-wise guarantees”
+% ## 你论文里可以怎么用
 
-每个小节放一张表（coverage + length）+ 1–2 张关键图即可。
+% * Section “Experiments” 结构：
+
+%   1. Linear-Gaussian（1A）：“sanity check: CP vs Bootstrap under correct model”
+%   2. Nonlinear / heavy-tail / heteroskedastic（1B + 2）：“Bootstrap loses validity under misspecification; CP keeps finite-sample coverage, trades length”
+%   3. High-dimensional RF/NN（3）：“CP remains valid and efficient on complex black-boxes, Bootstrap unstable and expensive”
+%   4. Instance-wise analysis（4）：“Global vs instance-wise guarantees”
+
+% 每个小节放一张表（coverage + length）+ 1–2 张关键图即可。
 
 
 
