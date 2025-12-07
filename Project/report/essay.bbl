@@ -1,0 +1,57 @@
+\begin{thebibliography}{9}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Qian et~al.(2024)Qian, Siau, and Nah]{SocialImpactAI}
+Yuzhou Qian, Keng~L. Siau, and Fiona~F. Nah.
+\newblock Societal impacts of artificial intelligence: Ethical, legal, and governance issues.
+\newblock \emph{Societal Impacts}, 3:\penalty0 100040, 2024.
+\newblock ISSN 2949-6977.
+\newblock \doi{https://doi.org/10.1016/j.socimp.2024.100040}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2949697724000055}.
+
+\bibitem[Balasubramanian et~al.(2014)Balasubramanian, Ho, and Vovk]{Vovk2014conformal}
+Vineeth Balasubramanian, Shen-Shyang Ho, and Vladimir Vovk.
+\newblock \emph{Conformal prediction for reliable machine learning: theory, adaptations and applications}.
+\newblock Newnes, 2014.
+
+\bibitem[Smith(2024)]{smith2024uncertainty}
+Ralph~C Smith.
+\newblock \emph{Uncertainty quantification: theory, implementation, and applications}.
+\newblock SIAM, 2024.
+
+\bibitem[Saunders et~al.(1999)Saunders, Gammerman, and Vovk]{OriginTrasnduction}
+C.~Saunders, A.~Gammerman, and V.~Vovk.
+\newblock Transduction with confidence and credibility.
+\newblock In \emph{Proceedings of the Sixteenth International Joint Conference on Artificial Intelligence (IJCAI '99)}, pages 722--726, 1999.
+
+\bibitem[Papadopoulos et~al.(2002)Papadopoulos, Proedrou, Vovk, and Gammerman]{ICM}
+Harris Papadopoulos, Kostas Proedrou, Volodya Vovk, and Alex Gammerman.
+\newblock Inductive confidence machines for regression.
+\newblock In Tapio Elomaa, Heikki Mannila, and Hannu Toivonen, editors, \emph{Machine Learning: ECML 2002}, pages 345--356, Berlin, Heidelberg, 2002. Springer Berlin Heidelberg.
+\newblock ISBN 978-3-540-36755-0.
+
+\bibitem[Vovk et~al.(2005)Vovk, Gammerman, and Shafer]{vovk2005conformal}
+Vladimir Vovk, Alex Gammerman, and Glenn Shafer.
+\newblock \emph{Algorithmic Learning in a Random World}.
+\newblock Springer, 2005.
+
+\bibitem[Gammerman and Vovk(1999)]{Gammerman1999Kolmogorov}
+Alexander Gammerman and Vladimir Vovk.
+\newblock Kolmogorov complexity: Sources, theory and applications.
+\newblock \emph{Computer Journal}, 42\penalty0 (4), 1999.
+
+\bibitem[Fontana et~al.(2023)Fontana, Zeni, and Vantini]{fontana2023conformal}
+Matteo Fontana, Gianluca Zeni, and Simone Vantini.
+\newblock Conformal prediction: a unified review of theory and new challenges.
+\newblock \emph{Bernoulli}, 29\penalty0 (1):\penalty0 1--23, 2023.
+
+\bibitem[Lei et~al.(2018)Lei, G’Sell, Rinaldo, Tibshirani, and Wasserman]{SplitConformalPrediction}
+Jing Lei, Max G’Sell, Alessandro Rinaldo, Ryan~J Tibshirani, and Larry Wasserman.
+\newblock Distribution-free predictive inference for regression.
+\newblock \emph{Journal of the American Statistical Association}, 113\penalty0 (523):\penalty0 1094--1111, 2018.
+
+\end{thebibliography}
