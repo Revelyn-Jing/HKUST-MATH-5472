@@ -1,4 +1,4 @@
-\begin{thebibliography}{21}
+\begin{thebibliography}{30}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -96,6 +96,48 @@ Yaniv Romano, Evan Patterson, and Emmanuel Candes.
 \newblock Conformalized quantile regression.
 \newblock \emph{Advances in neural information processing systems}, 32, 2019.
 
+\bibitem[Casella and Berger(2024)]{casella2024statistical}
+George Casella and Roger Berger.
+\newblock \emph{Statistical inference}.
+\newblock Chapman and Hall/CRC, 2024.
+
+\bibitem[Koenker and Hallock(2001)]{koenker2001quantile}
+Roger Koenker and Kevin~F Hallock.
+\newblock Quantile regression.
+\newblock \emph{Journal of economic perspectives}, 15\penalty0 (4):\penalty0 143--156, 2001.
+
+\bibitem[Jospin et~al.(2022)Jospin, Laga, Boussaid, Buntine, and Bennamoun]{BNN}
+Laurent~Valentin Jospin, Hamid Laga, Farid Boussaid, Wray Buntine, and Mohammed Bennamoun.
+\newblock Hands-on bayesian neural networks—a tutorial for deep learning users.
+\newblock \emph{IEEE Computational Intelligence Magazine}, 17\penalty0 (2):\penalty0 29--48, 2022.
+
+\bibitem[Efron(2010)]{EmpiricalBayesian}
+Bradley Efron.
+\newblock \emph{Large-Scale Inference: Empirical Bayes Methods for Estimation, Testing, and Prediction}.
+\newblock Institute of Mathematical Statistics Monographs. Cambridge University Press, 2010.
+
+\bibitem[Vapnik(1999)]{vapnik1999overview}
+Vladimir~N Vapnik.
+\newblock An overview of statistical learning theory.
+\newblock \emph{IEEE transactions on neural networks}, 10\penalty0 (5):\penalty0 988--999, 1999.
+
+\bibitem[Cristianini and Shawe-Taylor(2000)]{Littlestone_and_Warmuth}
+N~Cristianini and J~Shawe-Taylor.
+\newblock An introduction to support vector machines and other kernel-based methods. 2000, 2000.
+
+\bibitem[Arlot and Celisse(2010)]{Arlot_2010_cv}
+Sylvain Arlot and Alain Celisse.
+\newblock A survey of cross-validation procedures for model selection.
+\newblock \emph{Statistics Surveys}, 4\penalty0 (none), January 2010.
+\newblock ISSN 1935-7516.
+\newblock \doi{10.1214/09-ss054}.
+\newblock URL \url{http://dx.doi.org/10.1214/09-SS054}.
+
+\bibitem[Efron and Tibshirani(1994)]{bootstrap}
+Bradley Efron and Robert~J Tibshirani.
+\newblock \emph{An introduction to the bootstrap}.
+\newblock Chapman and Hall/CRC, 1994.
+
 \bibitem[Tsanas and Xifara(2012)]{energy_efficiency_242}
 Athanasios Tsanas and Angeliki Xifara.
 \newblock {Energy Efficiency}.
@@ -107,14 +149,19 @@ Thomas Melluish, Craig Saunders, Ilia Nouretdinov, and Volodya Vovk.
 \newblock Comparing the bayes and typicalness frameworks.
 \newblock In \emph{European conference on machine learning}, pages 360--371. Springer, 2001.
 
-\bibitem[Jospin et~al.(2022)Jospin, Laga, Boussaid, Buntine, and Bennamoun]{BNN}
-Laurent~Valentin Jospin, Hamid Laga, Farid Boussaid, Wray Buntine, and Mohammed Bennamoun.
-\newblock Hands-on bayesian neural networks—a tutorial for deep learning users.
-\newblock \emph{IEEE Computational Intelligence Magazine}, 17\penalty0 (2):\penalty0 29--48, 2022.
-
 \bibitem[Blundell et~al.(2015)Blundell, Cornebise, Kavukcuoglu, and Wierstra]{blundell2015weight}
 Charles Blundell, Julien Cornebise, Koray Kavukcuoglu, and Daan Wierstra.
 \newblock Weight uncertainty in neural network.
 \newblock In \emph{International conference on machine learning}, pages 1613--1622. PMLR, 2015.
+
+\bibitem[Sesia and Cand{\`e}s(2020)]{sesia2020CQR_Comparing}
+Matteo Sesia and Emmanuel~J Cand{\`e}s.
+\newblock A comparison of some conformal quantile regression methods.
+\newblock \emph{Stat}, 9\penalty0 (1):\penalty0 e261, 2020.
+
+\bibitem[Cherian et~al.(2024)Cherian, Gibbs, and Candes]{cherian2024large}
+John Cherian, Isaac Gibbs, and Emmanuel Candes.
+\newblock Large language model validity via enhanced conformal prediction methods.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 114812--114842, 2024.
 
 \end{thebibliography}
