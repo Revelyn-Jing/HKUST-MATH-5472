@@ -9,6 +9,9 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\makeatletter
+\renewcommand{\@noticestring}{}
+\makeatother
 
 \usepackage{float}   % 放在导言区
 \usepackage{array}
@@ -66,6 +69,8 @@ which measures how atypical an example $(X_i,Y_i)$ is relative to the others. A 
 
 If conformal prediction did not exist, what we would lose is not merely an algorithm but a critical meta-methodology: a systematic framework that decouples uncertainty quantification from model design through the construction of nonconformity scores. The impact would extend beyond the disappearance of a single technique, altering the fundamental paradigm for developing uncertainty-aware predictive systems.
 
+The source code for all experiments is publicly available at:
+\url{https://github.com/Revelyn-Jing/HKUST-MATH-5472/tree/main/Project}.
 
 % This paper examines this question from multiple perspectives, including the historical development of conformal prediction, its core insights, and its distinctive role in modern machine learning. Sections 2 and 3 provide an in-depth overview of its evolution and underlying principles, clarifying its unique value and highlighting the essential differences from alternative approaches to uncertainty quantification. Section 4 presents a comparative analysis between conformal prediction and other uncertainty quantification methods, demonstrating its advantages and irreplaceability. Section 5 discusses its practical significance in real-world applications and explores the potential consequences for research and practice in a hypothetical scenario where conformal prediction does not exist, including the research directions that would be absent in its absence.
 %这部分要根据文章结构调整一下

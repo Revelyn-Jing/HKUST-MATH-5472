@@ -8,13 +8,11 @@
 \bibitem[Qian et~al.(2024)Qian, Siau, and Nah]{SocialImpactAI}
 Yuzhou Qian, Keng~L. Siau, and Fiona~F. Nah.
 \newblock Societal impacts of artificial intelligence: Ethical, legal, and governance issues.
-\newblock \emph{Societal Impacts}, 3:\penalty0 100040, 2024.
-\newblock ISSN 2949-6977.
-\newblock \doi{https://doi.org/10.1016/j.socimp.2024.100040}.
-\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2949697724000055}.
+\newblock \emph{Societal Impacts}, 3, 2024.
+\newblock \doi{10.1016/j.socimp.2024.100040}.
 
 \bibitem[Balasubramanian et~al.(2014)Balasubramanian, Ho, and Vovk]{Vovk2014conformal}
-Vineeth Balasubramanian, Shen-Shyang Ho, and Vladimir Vovk.
+Vineeth Balasubramanian, Shen{-}Shyang Ho, and Vladimir Vovk.
 \newblock \emph{Conformal prediction for reliable machine learning: theory, adaptations and applications}.
 \newblock Newnes, 2014.
 
@@ -31,8 +29,7 @@ C.~Saunders, A.~Gammerman, and V.~Vovk.
 \bibitem[Papadopoulos et~al.(2002)Papadopoulos, Proedrou, Vovk, and Gammerman]{ICM}
 Harris Papadopoulos, Kostas Proedrou, Volodya Vovk, and Alex Gammerman.
 \newblock Inductive confidence machines for regression.
-\newblock In Tapio Elomaa, Heikki Mannila, and Hannu Toivonen, editors, \emph{Machine Learning: ECML 2002}, pages 345--356, Berlin, Heidelberg, 2002. Springer Berlin Heidelberg.
-\newblock ISBN 978-3-540-36755-0.
+\newblock In \emph{Proceedings of the European Conference on Machine Learning (ECML 2002)}, pages 345--356, 2002.
 
 \bibitem[Vovk et~al.(2005)Vovk, Gammerman, and Shafer]{vovk2005conformal}
 Vladimir Vovk, Alex Gammerman, and Glenn Shafer.
@@ -57,24 +54,22 @@ Jing Lei, Max G’Sell, Alessandro Rinaldo, Ryan~J Tibshirani, and Larry Wasserm
 \bibitem[Angelopoulos and Bates(2021)]{angelopoulos2021gentle}
 Anastasios~N Angelopoulos and Stephen Bates.
 \newblock A gentle introduction to conformal prediction and distribution-free uncertainty quantification.
-\newblock \emph{arXiv preprint arXiv:2107.07511}, 2021.
+\newblock \emph{arXiv:2107.07511}, 2021.
 
 \bibitem[Barber et~al.(2020)Barber, Candes, Ramdas, and Tibshirani]{jackknifePlus}
 Rina~Foygel Barber, Emmanuel~J. Candes, Aaditya Ramdas, and Ryan~J. Tibshirani.
 \newblock Predictive inference with the jackknife+, 2020.
-\newblock URL \url{https://arxiv.org/abs/1905.02928}.
 
 \bibitem[Tibshirani et~al.(2019)Tibshirani, Barber, Cand{\`e}s, and Ramdas]{weightedConformal}
 Ryan~J. Tibshirani, Rina~Foygel Barber, Emmanuel~J. Cand{\`e}s, and Aaditya Ramdas.
 \newblock Conformal prediction under covariate shift.
 \newblock In \emph{Proceedings of the 33rd International Conference on Neural Information Processing Systems}, pages 2530--2540, Red Hook, NY, USA, 2019. Curran Associates Inc.
 
-\bibitem[Chernozhukov et~al.(2021)Chernozhukov, Wüthrich, and Zhu]{distributionalConformal}
-Victor Chernozhukov, Kaspar Wüthrich, and Yinchu Zhu.
+\bibitem[Chernozhukov et~al.(2021)Chernozhukov, W{\"u}thrich, and Zhu]{distributionalConformal}
+Victor Chernozhukov, Kaspar W{\"u}thrich, and Yinchu Zhu.
 \newblock Distributional conformal prediction.
 \newblock \emph{Proceedings of the National Academy of Sciences}, 118\penalty0 (48):\penalty0 e2107794118, 2021.
 \newblock \doi{10.1073/pnas.2107794118}.
-\newblock URL \url{https://www.pnas.org/doi/abs/10.1073/pnas.2107794118}.
 
 \bibitem[Dunn et~al.(2023)Dunn, Wasserman, and Ramdas]{hierarchicalConformal}
 Robin Dunn, Larry Wasserman, and Aaditya Ramdas.
@@ -84,17 +79,17 @@ Robin Dunn, Larry Wasserman, and Aaditya Ramdas.
 \bibitem[Romano et~al.(2020)Romano, Sesia, and Candes]{romano2020classification}
 Yaniv Romano, Matteo Sesia, and Emmanuel Candes.
 \newblock Classification with valid and adaptive coverage.
-\newblock \emph{Advances in neural information processing systems}, 33:\penalty0 3581--3591, 2020.
+\newblock \emph{Advances in Neural Information Processing Systems}, 33:\penalty0 3581--3591, 2020.
 
 \bibitem[Angelopoulos et~al.(2020)Angelopoulos, Bates, Malik, and Jordan]{angelopoulos2020uncertainty}
 Anastasios Angelopoulos, Stephen Bates, Jitendra Malik, and Michael~I Jordan.
 \newblock Uncertainty sets for image classifiers using conformal prediction.
-\newblock \emph{arXiv preprint arXiv:2009.14193}, 2020.
+\newblock \emph{arXiv:2009.14193}, 2020.
 
 \bibitem[Romano et~al.(2019)Romano, Patterson, and Candes]{CQR}
 Yaniv Romano, Evan Patterson, and Emmanuel Candes.
 \newblock Conformalized quantile regression.
-\newblock \emph{Advances in neural information processing systems}, 32, 2019.
+\newblock \emph{Advances in Neural Information Processing Systems}, 32, 2019.
 
 \bibitem[Casella and Berger(2024)]{casella2024statistical}
 George Casella and Roger Berger.
@@ -104,7 +99,7 @@ George Casella and Roger Berger.
 \bibitem[Koenker and Hallock(2001)]{koenker2001quantile}
 Roger Koenker and Kevin~F Hallock.
 \newblock Quantile regression.
-\newblock \emph{Journal of economic perspectives}, 15\penalty0 (4):\penalty0 143--156, 2001.
+\newblock \emph{Journal of Economic Perspectives}, 15\penalty0 (4):\penalty0 143--156, 2001.
 
 \bibitem[Jospin et~al.(2022)Jospin, Laga, Boussaid, Buntine, and Bennamoun]{BNN}
 Laurent~Valentin Jospin, Hamid Laga, Farid Boussaid, Wray Buntine, and Mohammed Bennamoun.
@@ -114,24 +109,22 @@ Laurent~Valentin Jospin, Hamid Laga, Farid Boussaid, Wray Buntine, and Mohammed 
 \bibitem[Efron(2010)]{EmpiricalBayesian}
 Bradley Efron.
 \newblock \emph{Large-Scale Inference: Empirical Bayes Methods for Estimation, Testing, and Prediction}.
-\newblock Institute of Mathematical Statistics Monographs. Cambridge University Press, 2010.
+\newblock Cambridge University Press, Cambridge, 2010.
 
 \bibitem[Vapnik(1999)]{vapnik1999overview}
 Vladimir~N Vapnik.
 \newblock An overview of statistical learning theory.
-\newblock \emph{IEEE transactions on neural networks}, 10\penalty0 (5):\penalty0 988--999, 1999.
+\newblock \emph{IEEE Transactions on Neural Networks}, 10\penalty0 (5):\penalty0 988--999, 1999.
 
-\bibitem[Cristianini and Shawe-Taylor(2000)]{Littlestone_and_Warmuth}
-N~Cristianini and J~Shawe-Taylor.
-\newblock An introduction to support vector machines and other kernel-based methods. 2000, 2000.
+\bibitem[Cristianini and Shawe{-}Taylor(2000)]{Littlestone_and_Warmuth}
+N~Cristianini and J~Shawe{-}Taylor.
+\newblock An introduction to support vector machines and other kernel-based methods, 2000.
 
 \bibitem[Arlot and Celisse(2010)]{Arlot_2010_cv}
 Sylvain Arlot and Alain Celisse.
 \newblock A survey of cross-validation procedures for model selection.
-\newblock \emph{Statistics Surveys}, 4\penalty0 (none), January 2010.
-\newblock ISSN 1935-7516.
+\newblock \emph{Statistics Surveys}, 4, 2010.
 \newblock \doi{10.1214/09-ss054}.
-\newblock URL \url{http://dx.doi.org/10.1214/09-SS054}.
 
 \bibitem[Efron and Tibshirani(1994)]{bootstrap}
 Bradley Efron and Robert~J Tibshirani.
@@ -140,19 +133,19 @@ Bradley Efron and Robert~J Tibshirani.
 
 \bibitem[Tsanas and Xifara(2012)]{energy_efficiency_242}
 Athanasios Tsanas and Angeliki Xifara.
-\newblock {Energy Efficiency}.
+\newblock Energy efficiency.
 \newblock UCI Machine Learning Repository, 2012.
-\newblock {DOI}: https://doi.org/10.24432/C51307.
+\newblock doi:10.24432/C51307.
 
 \bibitem[Melluish et~al.(2001)Melluish, Saunders, Nouretdinov, and Vovk]{BayesVsTypicalness}
 Thomas Melluish, Craig Saunders, Ilia Nouretdinov, and Volodya Vovk.
 \newblock Comparing the bayes and typicalness frameworks.
-\newblock In \emph{European conference on machine learning}, pages 360--371. Springer, 2001.
+\newblock In \emph{European Conference on Machine Learning}, pages 360--371, 2001.
 
 \bibitem[Blundell et~al.(2015)Blundell, Cornebise, Kavukcuoglu, and Wierstra]{blundell2015weight}
 Charles Blundell, Julien Cornebise, Koray Kavukcuoglu, and Daan Wierstra.
 \newblock Weight uncertainty in neural network.
-\newblock In \emph{International conference on machine learning}, pages 1613--1622. PMLR, 2015.
+\newblock In \emph{International Conference on Machine Learning}, pages 1613--1622, 2015.
 
 \bibitem[Sesia and Cand{\`e}s(2020)]{sesia2020CQR_Comparing}
 Matteo Sesia and Emmanuel~J Cand{\`e}s.
